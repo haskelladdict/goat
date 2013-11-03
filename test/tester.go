@@ -2,6 +2,7 @@ package main
 
 import (
   "fmt"
+  "goat/queue"
   "goat/ugraph"
 )
 
@@ -22,4 +23,17 @@ func main() {
   cc := g.Conn_components()
   fmt.Println("number of connected components ", cc)
   fmt.Println("conntected 0 6 ", cc.Connected(12,9)) 
+
+  q := queue.New()
+  q.Print()
+  q.Enqueue(5)
+  q.Enqueue(12)
+  q.Enqueue(77)
+  q.Print()
+  fmt.Println(q.Dequeue())
+  q.Enqueue(3.4)
+  e := q.Dequeue()
+  for ; e != nil; e = q.Dequeue() {
+    fmt.Println(e)
+  }
 }
