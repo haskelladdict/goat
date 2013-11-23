@@ -1,13 +1,10 @@
-// ugraph provides a data structure for representing an undirected
-// graph. Also provided are functions for reading graphs from text
-// files and providing basic information about the graph
+// ugraph provides a data structure and methods for undirected graphs. 
 package ugraph
 
 import (
   "bufio"
   "errors"
   "fmt"
-  cc "goat/conncomp"
   "os"
 )
 
@@ -76,13 +73,15 @@ func New_parse(file_name string) (Ugraph, error) {
 }
 
 
-// V prints the number of vertices in the graph
+
+// V returns the number of vertices in the graph
 func (g Ugraph) V() int {
   return len(g)
 }
 
 
-// E prints the number of edges in the graph
+
+// E returns the number of edges in the graph
 func (g Ugraph) E() int {
   edges := 0
   for _, v := range g {
@@ -92,10 +91,12 @@ func (g Ugraph) E() int {
 }
 
 
+
 // Adj returns the list of vertices adjacent to vertex v
 func (g Ugraph) Adj(v int) []int {
   return g[v]
 }
+
 
 
 // Add_edge adds an edge between vertices v and w
@@ -105,10 +106,12 @@ func (g Ugraph) Add_edge(v int, w int) {
 }
 
 
+
 // Degree returns the degree of vertex v
 func (g Ugraph) Degree(v int) int {
   return len(g[v])
 }
+
 
 
 // Max_degree returns the maximum degree of the graph
@@ -121,6 +124,7 @@ func (g Ugraph) Max_degree() int {
   }
   return max_deg
 }
+
 
 
 // Avg_degree returns the average degree of the graph
@@ -144,10 +148,93 @@ func (g Ugraph) Num_selfloops() int {
 
 
 
+// Paths is a data structure keeping track of all connectivities
+// from a source vertex in the graph
+type Paths struct {
+  marked []bool
+  edge_to []int
+}
+
+
+
+// compute_path determines all connections (paths) from source
+// vertex s in the undirected graph. This functions returns a
+// Path object.
+func (g Ugraph) Compute_paths(source int) *Paths {
+
+  paths := Paths{}
+  paths.marked = make([]bool, g.V())
+  paths.edge_to = make([]int, g.V())
+
+  // compute connectivities via depth first search
+  dfs_path(g, source, &paths)
+
+  return &paths
+}
+
+
+
+// dfs_path computes all the vertices reachable in graph g 
+// starting from source vertex s
+func dfs_path(g Ugraph, source int, paths *Paths) {
+
+  paths.marked[source] = true
+  for _, w := range g.Adj(source) {
+    if !paths.marked[w] {
+      dfs_path(g, w, paths)
+      paths.edge_to[w] = source
+    }
+  }
+}
+
+
+
+// Has_path_to returns true/false depending on if there is a 
+// path between s and v
+func (p *Paths) Has_path_to(v int) bool {
+  return p.marked[v]
+}
+
+
+// Path_to returns a vertex path between vertex s and t
+// if one exists.
+// NOTE: This will not return the shorted path - just a
+// path!
+func (g *Ugraph) Path_to(s, t int) ([]int, bool) {
+  all_paths := g.Compute_paths(s)
+  path := make([]int, 0)
+  if !all_paths.marked[t] {
+    return path, false
+  }
+
+  path = append(path, t)
+  for p := all_paths.edge_to[t]; p != s; p = all_paths.edge_to[p] {
+    path = append(path, p)
+  }
+  path = append(path, s)
+
+  // reverse path
+  for i := 0; i < len(path)/2; i++ {
+    path[i], path[len(path)-i-1] = path[len(path)-i-1], path[i]
+  }
+
+  return path, true
+}
+
+
+
+// Connected returns true if two vertices are connected (i.e.
+// in the same connected component and false otherwise
+func (g *Ugraph) Connected(v, w int) bool {
+  return g.Compute_paths(v).Has_path_to(w)
+}
+
+
+
 // Conn_components returns a slice of slices with vertices in each
 // connected component 
-func (g Ugraph) Conn_components() cc.ConnComp {
-  components := make(cc.ConnComp,0)
+func (g Ugraph) Conn_components() [][]int {
+  components := make([][]int, 0)
   discovered := make([]bool, g.V())
   for i := 0; i < g.V(); i++ {
     if discovered[i] == false {
@@ -158,6 +245,8 @@ func (g Ugraph) Conn_components() cc.ConnComp {
   }
   return components
 }
+
+
 
 // dfs helper function for Conn_components
 func dfs_conn_components(g Ugraph, x int, discovered []bool, elems *[]int) {

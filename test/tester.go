@@ -22,7 +22,7 @@ func main() {
   fmt.Println("number of self loops ", g.Num_selfloops())
   cc := g.Conn_components()
   fmt.Println("number of connected components ", cc)
-  fmt.Println("conntected 0 6 ", cc.Connected(12,9)) 
+  fmt.Println("conntected 0 9 ", g.Connected(0, 9))
 
   q := queue.New()
   q.Print()
@@ -36,4 +36,15 @@ func main() {
   for ; e != nil; e = q.Dequeue() {
     fmt.Println(e)
   }
+
+  paths := g.Compute_paths(7)
+  fmt.Println(paths)
+  fmt.Printf("0 %t 1 %t   2 %t   3 %t   4 %t   5 %t   6 %t  7 %t  8 %t   9 %t \n",
+    paths.Has_path_to(0),
+    paths.Has_path_to(1), paths.Has_path_to(2), paths.Has_path_to(3),
+    paths.Has_path_to(4), paths.Has_path_to(5), paths.Has_path_to(6),
+    paths.Has_path_to(7), paths.Has_path_to(8), paths.Has_path_to(9))
+
+  fmt.Println(g.Path_to(7, 8));
+
 }
