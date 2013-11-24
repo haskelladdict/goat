@@ -150,6 +150,7 @@ func (g Ugraph) Num_selfloops() int {
 
 // Paths is a data structure keeping track of all connectivities
 // from a source vertex in the graph
+// NOTE: edge_to is set to -1 if there is no edge
 type Paths struct {
   marked []bool
   edge_to []int
@@ -160,11 +161,16 @@ type Paths struct {
 // compute_path determines all connections (paths) from source
 // vertex s in the undirected graph. This functions returns a
 // Path object.
-func (g Ugraph) Compute_paths(source int) *Paths {
+func (g *Ugraph) Compute_paths(source int) *Paths {
 
   paths := Paths{}
   paths.marked = make([]bool, g.V())
+
+  // edge_to slice is initialized to -1
   paths.edge_to = make([]int, g.V())
+  for i := 0; i < g.V(); i++ {
+    paths.edge_to[i] = -1
+  }
 
   // compute connectivities via depth first search
   dfs_path(g, source, &paths)
@@ -176,7 +182,7 @@ func (g Ugraph) Compute_paths(source int) *Paths {
 
 // dfs_path computes all the vertices reachable in graph g 
 // starting from source vertex s
-func dfs_path(g Ugraph, source int, paths *Paths) {
+func dfs_path(g *Ugraph, source int, paths *Paths) {
 
   paths.marked[source] = true
   for _, w := range g.Adj(source) {
