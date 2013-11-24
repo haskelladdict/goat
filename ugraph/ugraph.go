@@ -31,7 +31,7 @@ func New_empty(num_vertices int) (Ugraph, error) {
 //   v3 v4
 //   ...
 //
-func New_parse(file_name string) (Ugraph, error) {
+func New_parse(file_name string) (*Ugraph, error) {
 
   // try to open and parse file
   file, ok := os.Open(file_name)
@@ -69,7 +69,7 @@ func New_parse(file_name string) (Ugraph, error) {
     return nil, errors.New("Failed to parse edges")
   }
 
-  return graph, nil
+  return &graph, nil
 }
 
 
@@ -239,7 +239,7 @@ func (g *Ugraph) Connected(v, w int) bool {
 
 // Conn_components returns a slice of slices with vertices in each
 // connected component 
-func (g Ugraph) Conn_components() [][]int {
+func (g *Ugraph) Conn_components() [][]int {
   components := make([][]int, 0)
   discovered := make([]bool, g.V())
   for i := 0; i < g.V(); i++ {
@@ -255,7 +255,7 @@ func (g Ugraph) Conn_components() [][]int {
 
 
 // dfs helper function for Conn_components
-func dfs_conn_components(g Ugraph, x int, discovered []bool, elems *[]int) {
+func dfs_conn_components(g *Ugraph, x int, discovered []bool, elems *[]int) {
   discovered[x] = true
   *elems = append(*elems, x)
   for _, y := range g.Adj(x) {
@@ -267,6 +267,35 @@ func dfs_conn_components(g Ugraph, x int, discovered []bool, elems *[]int) {
 
 
 
+// Num_cycles computes the number of cycles in graph g using
+// depth first search counting the number of back edges
+func (g *Ugraph) Num_cycles() int {
+  num_back_edges := 0
+  discovered := make([]bool, g.V())
+  for i := 0; i < g.V(); i++ {
+    if !discovered[i] {
+      dfs_back_edges(g, i, -1, discovered, &num_back_edges)
+    }
+  }
+
+  // need to divide by 2 since we cound each back edge twice
+  return num_back_edges/2
+}
+
+
+
+// dfs_back_edges determines the number of back edges via a dfs
+func dfs_back_edges(g *Ugraph, i int, parent int, discovered []bool,
+  num_back_edges *int) {
+  discovered[i] = true
+  for _, v := range g.Adj(i) {
+    if !discovered[v] {
+      dfs_back_edges(g, v, i, discovered, num_back_edges)
+    } else if v != parent {
+      *num_back_edges++
+    }
+  }
+}
 
 
 

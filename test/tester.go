@@ -45,6 +45,9 @@ func main() {
     paths.Has_path_to(4), paths.Has_path_to(5), paths.Has_path_to(6),
     paths.Has_path_to(7), paths.Has_path_to(8), paths.Has_path_to(9))
 
-  fmt.Println(g.Path_to(7, 8));
+  fmt.Println(g.Path_to(7, 8))
+
+  g2, err := ugraph.New_parse("graph_2.txt")
+  fmt.Println(g2.Num_cycles())
 
 }

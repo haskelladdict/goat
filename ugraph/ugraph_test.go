@@ -7,7 +7,7 @@ import (
 )
 
 
-var graph1 Ugraph
+var graph1 *Ugraph
 func init() {
   var err error
   graph1, err = New_parse("test_files/graph_1.txt")
@@ -140,3 +140,18 @@ func TestUgraphConnect (t *testing.T) {
     t.Errorf("vertex 0 has a no path to vertex 3 but should have");
   }
 }
+
+
+
+// TestUGraphConnect tests the computation of the number of cycles
+// in undirected graphs
+func TestUgraphCycles (t *testing.T) {
+
+  num_cycles := 3
+  if graph1.Num_cycles() != num_cycles {
+    t.Errorf("graph1 has an incorrect number of cycles A(%d)/T(%d)",
+      graph1.Num_cycles(), num_cycles);
+  }
+}
+
+
