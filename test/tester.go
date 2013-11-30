@@ -2,8 +2,8 @@ package main
 
 import (
   "fmt"
-  "goat/queue"
-  "goat/ugraph"
+  "github.com/haskelladdict/goat/queue"
+  "github.com/haskelladdict/goat/ugraph"
 )
 
 func main() {
